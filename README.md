@@ -40,12 +40,12 @@ More details about the Spring Security flow for the project can be found in [thi
 In order to log into the application you need to retrieve a JWT token by sending a HTTP POST request to the following endpoint. You will need to use basic auth to provide the username and password listed above when sending the request. If you have something like Postman installed then this is very simple and can be done through the **Authorization** tab inside the request builder.
 
 ```
-http://localhost:8081/api/smart/token
+http://localhost:8081/api/token
 ```
 If you are using Curl then the following command should get you a token 
 
 ```
-curl http://gcook:password@localhost:8081/api/smart/token -X POST
+curl http://gcook:password@localhost:8081/api/token -X POST
 ```
 From here, the token retrieved should be passed as a bearer token in every request. In Postman this is again very simple and can be configured through the UI. If using Curl then [this tutorial](https://reqbin.com/req/c-hlt4gkzd/curl-bearer-token-authorization-header-example) should help. 
 
@@ -81,12 +81,12 @@ Each time the application starts up, the in-memory database is seeded with test 
 ## API Docs
 Auto generated API documentation is available to view at the following URL 
 ```
-http://localhost:8081/api/smart/swagger-ui/index.html
+http://localhost:8081/api/swagger-ui/index.html
 ```
 
 This documentation is also available in JSON format at the following location 
 ```
-http://localhost:8081/api/smart/v3/api-docs
+http://localhost:8081/api/v3/api-docs
 ```
 
 ## CI Pipeline
