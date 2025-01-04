@@ -89,6 +89,15 @@ This documentation is also available in JSON format at the following location
 http://localhost:8081/api/smart/v3/api-docs
 ```
 
+## CI Pipeline
+There is a very basic Github Actions workflow file located at `.github/workflows/pipeline.yml`. Github automatically looks for these files and runs them based on the conditions specified in the file. In our case the pipeline runs on any push to main. 
+
+The pipeline doesn't put the code anywhere but it does install and cache dependencies then runs unit and integration tests. In a production solution, the next steps would obviously be things like security scans, Linting and pushing artefacts to cloud providers using things like Docker. 
+
+The output of the Github Actions runs can be viewed using the following URL: 
+
+https://github.com/gcook194/vm-tech-exercise/actions
+
 ## Ramblings
 
 ### Unit Tests
