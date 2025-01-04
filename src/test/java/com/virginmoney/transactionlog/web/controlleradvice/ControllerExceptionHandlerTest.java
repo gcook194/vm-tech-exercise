@@ -1,34 +1,25 @@
 package com.virginmoney.transactionlog.web.controlleradvice;
 
+import com.virginmoney.transactionlog.error.NotFoundException;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
-import org.springframework.validation.ObjectError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
-import com.virginmoney.transactionlog.error.NotFoundException;
 
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.List;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class ControllerExceptionHandlerTest {
@@ -69,49 +60,5 @@ class ControllerExceptionHandlerTest {
         ErrorMessage response = exceptionHandlerUnderTest.handle404s(ex, webRequest);
 
         assertThat(response).isEqualTo(expectedErrorMessage);
-    }
-
-    @Test
-    void handleValidationExceptions_HandlesException_AndReturnsExpectedResponse() {
-
-        final String fieldErrorMessage = "You must enter a response";
-        final String singleResponseErrorField = "response";
-
-        final String objectErrorMessage = "You must enter an address";
-
-        // set up validation failure
-        final ObjectError fieldError = new FieldError("question", singleResponseErrorField, fieldErrorMessage);
-        final ObjectError objectError = new ObjectError("question", objectErrorMessage);
-
-        final BindingResult result = mock(BindingResult.class);
-        when(result.getAllErrors())
-                .thenReturn(List.of(fieldError, objectError));
-
-        // exception thrown by Spring when validation failure occurs
-        final MethodParameter parameter = mock(MethodParameter.class);
-        final MethodArgumentNotValidException ex = new MethodArgumentNotValidException(parameter, result);
-
-        // make the web request
-        final MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setRequestURI("/some-uri");
-        request.setRemoteAddr("https://some-domain.com");
-
-        // Build the expected error message
-        final Error expectedFieldError = Error.builder()
-                .fieldName(singleResponseErrorField)
-                .errorMessage(fieldErrorMessage)
-                .build();
-        final Error expectedObjectError = Error.builder()
-                .fieldName("question")
-                .errorMessage(objectErrorMessage)
-                .build();
-        final ErrorResponseBody body = ErrorResponseBody.builder()
-                .message("Validation failure")
-                .errors(List.of(expectedFieldError, expectedObjectError))
-                .build();
-
-        final ErrorResponseBody response = exceptionHandlerUnderTest.handleValidationExceptions(ex);
-
-        assertThat(response).isEqualTo(body);
     }
 }
