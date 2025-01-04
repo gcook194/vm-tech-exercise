@@ -1,0 +1,24 @@
+server:
+  port: 8081
+  servlet:
+    context-path: /api/
+spring:
+  datasource:
+    url: jdbc:h2:mem:transaction-log
+    username: transaction-log-prod-usr
+    password: OyIhNwfx7nkNnhLPHFDZlXfH2VluxCveuMmRp7G8
+    driverClassName: org.h2.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    show-sql: true
+#    hibernate:
+#      ddl-auto: create-drop
+logging:
+  level:
+    ROOT: INFO
+rsa:
+  private-key: classpath:certs/private.pem
+  public-key: classpath:certs/public.pem
+user:
+  username: gcook
+  password: password
