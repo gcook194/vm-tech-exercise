@@ -1,13 +1,17 @@
 # Virgin Money Tech Test
 
 ## General Design
-The application is a Spring Boot 3 REST API written using java 17. There is quite a lot of boilerplate as is always the way with Java projects but this ReadMe should contain all the information you will need to build, run and test the code. 
+The application is a Spring Boot 3 REST API written using java 17. Dependencies and lifecycle tasks are managed using Maven. This ReadMe should contain all the information you will need to build, run and test the code. 
 
-The entry point for the application is the web layer, below this sits the service layer and below this sits the repository layer.
+For the purposes of performing a code review, the most logical starting point is the class below as this is where all the important requests start and end. 
 
-The main Transaction data controller class lives at `src/main/java/com/virginmoney/transactionlog/web/TransactionController.java`
+`src/main/java/com/virginmoney/transactionlog/web/TransactionController.java`
 
-For the most part, the web layer really only deals with handling requests and responses and very little else. The service layer hits the repository layer to retrieve data from the database then converts responses into DTOs using MapStruct mapper classes, and the repository layer is where all of the interactions with the database happens.
+In terms of project structure, the web layer only deals with handling requests and responses. The service layer hits the repository layer to retrieve data from the database then converts responses into DTOs using MapStruct mapper classes, and the repository layer is where database interactions take place. 
+
+To handle displaying errors back through the API there is a very simple controller exception handler class that catches certain exceptions and returns well-formatted responses based on them. 
+
+The rest of the classes are really just configuration and tests
 
 ## Starting the app
 
@@ -18,7 +22,7 @@ mvn spring-boot:run
 ```
 
 ## Postman
-There is a Postman collection in the `resources/postman` directory. It contains one example of every request asked for as part of the brief (as well as a few additional ones added to aid in testing).
+There is a Postman collection in the `src/main/resources/postman` directory. It contains one example of every request asked for as part of the brief (as well as a few additional ones added to aid in testing).
 
 If you choose to use the collection to test the code you'll need to retrieve a bearer token using the "Get Bearer Token" request. This token can then be added into the Collection Variables and the other requests should work fine.
 
@@ -90,7 +94,7 @@ http://localhost:8081/api/v3/api-docs
 ```
 
 ## CI Pipeline
-There is a very basic Github Actions workflow file located at `.github/workflows/pipeline.yml`. Github automatically looks for these files and runs them based on the conditions specified in the file. In our case the pipeline runs on any push to main. 
+There is a very basic Github Actions workflow file located at `.github/workflows/pipeline.yml`. Github automatically looks for these files and runs them based on the conditions specified. In our case the pipeline runs on any push to main. 
 
 The pipeline doesn't put the code anywhere but it does install and cache dependencies then runs unit and integration tests. In a production solution, the next steps would obviously be things like security scans, Linting and pushing artefacts to cloud providers using things like Docker. 
 
@@ -98,7 +102,7 @@ The output of the Github Actions runs can be viewed using the following URL:
 
 https://github.com/gcook194/vm-tech-exercise/actions
 
-## Ramblings
+## Other Rambling
 
 ### Unit Tests
 I have chosen to use `AssertJ` assertions instead of the basic jUnit ones as I think these are more readable and more explicitly demonstrate 
