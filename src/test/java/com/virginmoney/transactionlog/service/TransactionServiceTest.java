@@ -12,6 +12,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,6 +50,22 @@ class TransactionServiceTest {
     }
 
     @Test
+    void getTransactions_HandlesEmptyResultSetFromDatabase() {
+        final List<Transaction> transactionsFromDatabase = Collections.emptyList();
+        final GetTransactionListDTO dto = new GetTransactionListDTO(Collections.emptyList());
+
+        when(transactionRepository.findAll())
+                .thenReturn(transactionsFromDatabase);
+
+        when(transactionMapper.transactionListToWrapperDTO(transactionsFromDatabase))
+                .thenReturn(dto);
+
+        final GetTransactionListDTO methodResponse = serviceUnderTest.getTransactions();
+
+        assertThat(methodResponse).isEqualTo(dto);
+    }
+
+    @Test
     void getTransactionsByCategory_FetchesFromDatabaseAndMapsToDTO() {
 
         final List<Transaction> transactionsFromDatabase = getTestTransactionData().stream()
@@ -72,7 +89,63 @@ class TransactionServiceTest {
     }
 
     @Test
+    void getTransactionsByCategory_HandlesEmptyResultSetFromDatabase() {
+
+        final List<Transaction> transactionsFromDatabase = Collections.emptyList();
+
+        final GetTransactionListDTO dto = new GetTransactionListDTO(Collections.emptyList());
+
+
+        when(transactionRepository.findByCategoryIgnoreCaseOrderByDateDesc(CATEGORY))
+                .thenReturn(transactionsFromDatabase);
+
+        when(transactionMapper.transactionListToWrapperDTO(transactionsFromDatabase))
+                .thenReturn(dto);
+
+
+        final GetTransactionListDTO methodResponse = serviceUnderTest.getTransactionsByCategory(CATEGORY);
+
+
+        assertThat(methodResponse).isEqualTo(dto);
+    }
+
+    @Test
     void getTotalOutgoingByTransactionCategory_FetchesFromDatabaseAndMapsToDTO() {
+
+        final TransactionTotalOutgoing outgoingForCategory = new TransactionTotalOutgoing() {
+            @Override
+            public String getCategory() {
+                return CATEGORY;
+            }
+
+            @Override
+            public Float getTotalOutgoing() {
+                return 100F;
+            }
+        };
+
+        final GetTransactionTotalOutgoingDTO dto = new GetTransactionTotalOutgoingDTO(
+                outgoingForCategory.getCategory(),
+                outgoingForCategory.getTotalOutgoing()
+        );
+
+
+        when(transactionRepository.findTotalOutgoingByTransactionCategory(CATEGORY))
+                .thenReturn(outgoingForCategory);
+        when(transactionMapper.transactionTotalOutgoingToDTO(outgoingForCategory))
+                .thenReturn(dto);
+
+
+
+        final GetTransactionTotalOutgoingDTO methodResponse = serviceUnderTest.getTotalOutgoingByTransactionCategory(CATEGORY);
+
+
+        verify(transactionRepository).findTotalOutgoingByTransactionCategory(CATEGORY);
+        assertThat(methodResponse).isEqualTo(dto);
+    }
+
+    @Test
+    void getTotalOutgoingByTransactionCategory_HandlesEmptyResultSetFromDatabase() {
 
         final TransactionTotalOutgoing outgoingForCategory = new TransactionTotalOutgoing() {
             @Override
@@ -142,6 +215,41 @@ class TransactionServiceTest {
     }
 
     @Test
+    void getAverageMonthlySpendByCategory_HandlesEmptyResultSetFromDatabase() {
+
+        final AverageMonthlySpend averageMonthlySpend = new AverageMonthlySpend() {
+            @Override
+            public String getCategory() {
+                return null;
+            }
+
+            @Override
+            public Float getAverageMonthlySpend() {
+                return null;
+            }
+        };
+
+        final GetAverageMonthlySpendDTO dto = new GetAverageMonthlySpendDTO(
+                averageMonthlySpend.getCategory(),
+                averageMonthlySpend.getAverageMonthlySpend()
+        );
+
+
+        when(transactionRepository.getAverageMonthlySpendByCategory(CATEGORY))
+                .thenReturn(averageMonthlySpend);
+        when(transactionMapper.averageMonthlySpendToDTO(averageMonthlySpend))
+                .thenReturn(dto);
+
+
+
+        final GetAverageMonthlySpendDTO methodResponse = serviceUnderTest.getAverageMonthlySpendByCategory(CATEGORY);
+
+
+        verify(transactionRepository).getAverageMonthlySpendByCategory(CATEGORY);
+        assertThat(methodResponse).isEqualTo(dto);
+    }
+
+    @Test
     void getHighestSpendByCategoryAndYear_FetchesFromDatabaseAndMapsToDTO() {
 
         final int year = 2020;
@@ -154,6 +262,42 @@ class TransactionServiceTest {
             @Override
             public Float getAnnualSpend() {
                 return 100F;
+            }
+        };
+
+        final GetAnnualSpendDTO dto = new GetAnnualSpendDTO(
+                highestSpendForCategory.getCategory(),
+                highestSpendForCategory.getAnnualSpend()
+        );
+
+
+        when(transactionRepository.findMaxAmountByCategoryAndYear(CATEGORY, year))
+                .thenReturn(highestSpendForCategory);
+        when(transactionMapper.annualSpendToDTO(highestSpendForCategory))
+                .thenReturn(dto);
+
+
+
+        final GetAnnualSpendDTO methodResponse = serviceUnderTest.getHighestSpendByCategoryAndYear(CATEGORY, year);
+
+
+        verify(transactionRepository).findMaxAmountByCategoryAndYear(CATEGORY, year);
+        assertThat(methodResponse).isEqualTo(dto);
+    }
+
+    @Test
+    void getHighestSpendByCategoryAndYear_HandlesEmptyResultSetFromDatabase() {
+
+        final int year = 2020;
+        final AnnualSpend highestSpendForCategory = new AnnualSpend() {
+            @Override
+            public String getCategory() {
+                return null;
+            }
+
+            @Override
+            public Float getAnnualSpend() {
+                return null;
             }
         };
 
@@ -214,6 +358,42 @@ class TransactionServiceTest {
     }
 
     @Test
+    void getLowestSpendByCategoryAndYear_HandlesEmptyResultSetFromDatabase() {
+
+        final int year = 2020;
+        final AnnualSpend lowestSpendForCategory = new AnnualSpend() {
+            @Override
+            public String getCategory() {
+                return null;
+            }
+
+            @Override
+            public Float getAnnualSpend() {
+                return null;
+            }
+        };
+
+        final GetAnnualSpendDTO dto = new GetAnnualSpendDTO(
+                lowestSpendForCategory.getCategory(),
+                lowestSpendForCategory.getAnnualSpend()
+        );
+
+
+        when(transactionRepository.findMinAmountByCategoryAndYear(CATEGORY, year))
+                .thenReturn(lowestSpendForCategory);
+        when(transactionMapper.annualSpendToDTO(lowestSpendForCategory))
+                .thenReturn(dto);
+
+
+
+        final GetAnnualSpendDTO methodResponse = serviceUnderTest.getLowestSpendByCategoryAndYear(CATEGORY, year);
+
+
+        verify(transactionRepository).findMinAmountByCategoryAndYear(CATEGORY, year);
+        assertThat(methodResponse).isEqualTo(dto);
+    }
+
+    @Test
     void getTotalOutgoingPerCategory_FetchesFromDatabaseAndMapsToDTO() {
 
         final TotalOutgoing spendForCategory = new TotalOutgoing() {
@@ -225,6 +405,43 @@ class TransactionServiceTest {
             @Override
             public Float getTotal() {
                 return 123F;
+            }
+        };
+
+        final TotalOutgoingDTO spendForCategoryDTO = new TotalOutgoingDTO(
+                spendForCategory.getCategory(),
+                spendForCategory.getTotal()
+        );
+
+        final TotalOutgoingListDTO dto = new TotalOutgoingListDTO(List.of(spendForCategoryDTO));
+
+
+        when(transactionRepository.getTotalSpendPerCategory())
+                .thenReturn(List.of(spendForCategory));
+        when(transactionMapper.totalOutgoingListToWrapperDTO(List.of(spendForCategory)))
+                .thenReturn(dto);
+
+
+
+        final TotalOutgoingListDTO methodResponse = serviceUnderTest.getTotalOutgoingPerCategory();
+
+
+        verify(transactionRepository).getTotalSpendPerCategory();
+        assertThat(methodResponse).isEqualTo(dto);
+    }
+
+    @Test
+    void getTotalOutgoingPerCategory_HandlesEmptyResultSetFromDatabase() {
+
+        final TotalOutgoing spendForCategory = new TotalOutgoing() {
+            @Override
+            public String getCategory() {
+                return null;
+            }
+
+            @Override
+            public Float getTotal() {
+                return null;
             }
         };
 

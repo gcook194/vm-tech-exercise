@@ -3,7 +3,6 @@ package com.virginmoney.transactionlog.cucumberglue;
 import com.virginmoney.transactionlog.CucumberUtils;
 import com.virginmoney.transactionlog.config.propertysource.BasicAuthProperties;
 import com.virginmoney.transactionlog.dto.GetTransactionListDTO;
-import com.virginmoney.transactionlog.dto.TotalOutgoingListDTO;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import lombok.RequiredArgsConstructor;
@@ -27,14 +26,10 @@ public class TransactionSteps {
     private String port;
 
     private ResponseEntity<GetTransactionListDTO> transactionListResponse;
-    private ResponseEntity<TotalOutgoingListDTO> totalOutgoingResponse;
 
     @When("the client calls endpoint {string}")
     public void whenClientCalls(String url) {
-        final String token = CucumberUtils.getJwtForTesting(port, authProperties.username(), authProperties.password());
-        final HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization" , "Bearer " + token);
-
+        final HttpHeaders headers = generateRequestHeaders();
         final HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity(headers);
 
         try {
@@ -73,5 +68,13 @@ public class TransactionSteps {
 
         assertThat(responseBody.transactions()).isNotEmpty();
         responseBody.transactions().forEach(transaction -> assertThat(transaction.category()).isEqualTo(category));
+    }
+
+    private HttpHeaders generateRequestHeaders() {
+        final String token = CucumberUtils.getJwtForTesting(port, authProperties.username(), authProperties.password());
+        final HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization" , "Bearer " + token);
+
+        return headers;
     }
 }
