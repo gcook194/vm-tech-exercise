@@ -43,13 +43,13 @@ public class TransactionService {
         return transactionMapper.averageMonthlySpendToDTO(averageMonthlySpend);
     }
 
-    public GetAnnualSpendDTO getHighestSpendByCategoryAndYear(String category, int year) {
+    public GetAnnualSpendDTO getHighestSpendByCategoryAndYear(final String category, final int year) {
         final AnnualSpend annualSpend = transactionRepository.findMaxAmountByCategoryAndYear(category, year);
 
         return transactionMapper.annualSpendToDTO(annualSpend);
     }
 
-    public GetAnnualSpendDTO getLowestSpendByCategoryAndYear(String category, int year) {
+    public GetAnnualSpendDTO getLowestSpendByCategoryAndYear(final String category, final int year) {
         final AnnualSpend annualSpend = transactionRepository.findMinAmountByCategoryAndYear(category, year);
 
         return transactionMapper.annualSpendToDTO(annualSpend);
