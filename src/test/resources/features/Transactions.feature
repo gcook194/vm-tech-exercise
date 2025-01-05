@@ -1,4 +1,4 @@
-Feature: Account has no meter readings
+Feature: API can return and filter transaction data
 
   Scenario: Call the REST API to get all transactions
     When the client calls endpoint "/api/transactions"
